@@ -1,0 +1,11 @@
+# probe1 ~ probe5 는 이 둘만 있으면 됩니다.
+pandas>=2.0
+numpy>=1.24
+
+# probe6, probe7 (지표 191개 전수 검정) 에만 필요합니다.
+# C 라이브러리를 먼저 설치해야 해서 까다롭습니다. 설치가 안 되면 probe1~5 만 돌려도
+# 핵심 결론(국면 통제 시 효과가 사라짐)은 그대로 확인됩니다.
+#   Windows : https://github.com/cgohlke/talib-build/releases 에서 whl 받아 설치
+#   macOS   : brew install ta-lib  후  pip install TA-Lib
+#   Linux   : ta-lib 소스 빌드 후  pip install TA-Lib
+TA-Lib>=0.4.25

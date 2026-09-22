@@ -1,0 +1,19 @@
+# 받아온 시세 데이터 (fetch_data.py 로 다시 만들면 된다)
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# 스크립트 산출물
+outputs/
+
+# 파이썬
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / 에디터
+.DS_Store
+.vscode/
+.idea/
