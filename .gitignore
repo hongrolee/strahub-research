@@ -3,6 +3,8 @@ data/*
 # 다만 폐지된 코인의 일봉은 공개 API 로 받을 수 없어 저장소에 넣어 둔다
 # (probe8 의 생존편향 절이 이 파일을 읽는다)
 !data/delisted_daily.csv
+# probe14 가 읽는 운영자 계좌 기록 (보유 비중 · 1분 수익률, 2026-09-25 ~ 09-30)
+!data/holdings_20260930.json
 *.db
 *.db-wal
 *.db-shm
