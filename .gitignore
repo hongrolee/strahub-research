@@ -5,6 +5,8 @@ data/*
 !data/delisted_daily.csv
 # probe14 가 읽는 운영자 계좌 기록 (보유 비중 · 1분 수익률, 2026-09-25 ~ 09-30)
 !data/holdings_20260930.json
+# probe15 의 HBAR 급등 사례 1분봉 (2026-09-27 ~ 09-30)
+!data/hbar_1m_20260930.json
 *.db
 *.db-wal
 *.db-shm
