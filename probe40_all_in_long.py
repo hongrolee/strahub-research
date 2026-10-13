@@ -24,6 +24,10 @@ DBL = HERE / 'data' / 'ohlcv_data_kst.db'
 FEE = 0.0015
 START_KRW = 1_000_000
 START_DAY = '2019-01-01'
+STOP = float(sys.argv[1]) if len(sys.argv) > 1 else 0.15     # 0 = 손절 없음
+TAKE = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5      # 0 = 익절 없음
+TAG = sys.argv[3] if len(sys.argv) > 3 else ''
+NO_HONGRO = bool(TAG)
 CONDS = ['desc_scallop', 'hs_top', 'double_top', 'streak_down', 'ma_cross_down', 'bb_lower']
 STRATS = [
     ('시험: 하락 스캘럽 뒤 사기', ['desc_scallop'], 'cond'),
@@ -95,7 +99,7 @@ def main():
                     sig.setdefault(cid, set()).add((i, di[day]))
         print('조건 신호 계산 끝', {c: len(v) for c, v in sig.items()}, flush=True)
         hsig = {}
-        for market, ds in pool.imap_unordered(hongro_one, [(m, data[m], START_DAY) for m in mk], chunksize=4):
+        for market, ds in ([] if NO_HONGRO else pool.imap_unordered(hongro_one, [(m, data[m], START_DAY) for m in mk], chunksize=4)):
             i = mk.index(market)
             for d in ds:
                 hsig.setdefault(di[d], []).append(i)
@@ -136,10 +140,10 @@ def main():
                 k = np.flatnonzero(~np.isnan(C[i, :t]))[-1]
                 px, why = C[i, k], '거래 끝'
             elif kind == 'cond':
-                if L[i, t] <= e * 0.85:
-                    px, why = e * 0.85, '손절 15%'
-                elif H[i, t] >= e * 1.5:
-                    px, why = e * 1.5, '익절 50%'
+                if STOP and L[i, t] <= e * (1 - STOP):
+                    px, why = e * (1 - STOP), '손절'
+                elif TAKE and H[i, t] >= e * (1 + TAKE):
+                    px, why = e * (1 + TAKE), '익절'
                 elif t - t0 >= 30:
                     px, why = C[i, t], '30일 지남'
             else:
@@ -201,6 +205,8 @@ def main():
         print(f"\n=== {pname}: {days[t_start]} ~ {days[t_end]} · 그때 코인 {n_alive}개 · 비트코인 들고 있기 {btc:,.0f}원 · 모든 코인 같은 금액씩 {ew:,.0f}원", flush=True)
         rows = []
         for name, conds, kind in STRATS:
+            if NO_HONGRO and kind == 'hongro':
+                continue
             ds = daysig_of(conds, kind)
             r = run(ds, kind, t_start, t_end)
             flat = max(1, (t_end - t_start + 1) - r['busy_days'])
@@ -212,7 +218,7 @@ def main():
                   f" | 아무 날 아무 코인 중간값 {r['rand_median']:>13,.0f}원 · 이 전략이 이긴 비율 {r['beat']:3.0f}%", flush=True)
         out['periods'][pname] = {'from': days[t_start], 'to': days[t_end], 'btc': btc, 'ew': ew, 'coins': n_alive,
                                  'rows': [{k: v for k, v in r.items() if k != 'list'} | {'list': r['list'] if pname == '전체' else []} for r in rows]}
-    (HERE / 'outputs' / 'probe40_all_in_long.json').write_text(json.dumps(out, ensure_ascii=False, indent=1, default=float), encoding='utf-8')
+    (HERE / 'outputs' / f'probe40_all_in_long{TAG}.json').write_text(json.dumps(out, ensure_ascii=False, indent=1, default=float), encoding='utf-8')
 
 
 if __name__ == '__main__':
